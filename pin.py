@@ -34,8 +34,8 @@ print("Total training images:", total_train)
 print("Total validation images:", total_val)
 
 
-batch_size = 128
-epochs = 15
+batch_size = 100
+epochs = 8
 IMG_HEIGHT = 150
 IMG_WIDTH = 150
 
@@ -45,3 +45,77 @@ image_gen = ImageDataGenerator(rescale=1./255, horizontal_flip=True)
 
 train_data_gen = train_image_generator.flow_from_directory(batch_size=batch_size, directory=train_dir, shuffle=True, target_size=(IMG_HEIGHT, IMG_WIDTH), class_mode='binary')
 val_data_gen = validation_image_generator.flow_from_directory(batch_size=batch_size, directory=validation_dir, target_size=(IMG_HEIGHT, IMG_WIDTH), class_mode='binary')
+
+sample_training_images, _ = next(train_data_gen)
+
+#def plotImages(images_arr):
+    #fig, axes = plt.subplots(1, 5, figsize=(20,20))
+    #axes = axes.flatten()
+    #for img, ax in zip(images_arr, axes):
+        #ax.imshow(img)
+        #ax.axis('off')
+    #plt.tight_layout()
+    #plt.show()
+
+#plotImages(sample_training_images[:5])
+
+batch_size = 128
+epochs = 8
+IMG_HEIGHT = 150
+IMG_WIDTH = 150
+
+train_image_generator = ImageDataGenerator(rescale = 1./255)
+validation_image_generator = ImageDataGenerator(rescale=1./255)
+image_gen = ImageDataGenerator(rescale=1./255, horizontal_flip=True)
+
+train_data_gen = train_image_generator.flow_from_directory(batch_size=batch_size, directory=train_dir, shuffle=True, target_size=(IMG_HEIGHT, IMG_WIDTH), class_mode='binary')
+val_data_gen = validation_image_generator.flow_from_directory(batch_size=batch_size, directory=validation_dir, target_size=(IMG_HEIGHT, IMG_WIDTH), class_mode='binary')
+
+sample_training_images, _ = next(train_data_gen)
+
+model = Sequential([
+    Conv2D(16, 3, padding = 'same', activation = 'relu', input_shape = (IMG_HEIGHT, IMG_WIDTH, 3)),
+    MaxPooling2D(),
+    Conv2D(32, 3, padding = 'same', activation = 'relu'),
+    MaxPooling2D(),
+    Conv2D(64, 3, padding = 'same', activation = 'relu'),
+    MaxPooling2D(),
+    Flatten(),
+    Dense(512, activation='relu'),
+    Dense(1)
+    ])
+
+model.compile(optimizer='adam',
+    loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
+    metrics=['accuracy'])
+
+model.summary()
+
+hist = model.fit_generator(
+    train_data_gen,
+    steps_per_epoch=50,
+    epochs=epochs,
+    validation_data=val_data_gen,
+    validation_steps=total_val)
+
+acc = hist.history['accuracy']
+val_acc=hist.history['val_accuracy']
+
+loss=hist.history['loss']
+val_loss=hist.history['val_loss']
+
+epochs_range = range(epochs)
+
+plt.figure(figsize=(8, 8))
+plt.subplot(1, 2, 1)
+plt.plot(epochs_range, acc, label='Training Accuracy')
+plt.plot(epochs_range, val_acc, label='Validation Accuracy')
+plt.legend(loc='lower right')
+plt.title('Training and Validation Accuracy')
+
+plt.subplot(1, 2, 2)
+plt.plot(epochs_range, loss, label='Training Loss')
+plt.plot(epochs_range, val_acc, label='Validation Loss')
+plt.legend(loc='upper right')
+plt.title('Training and Validation Loss')
+plt.show()
