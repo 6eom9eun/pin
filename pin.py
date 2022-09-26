@@ -34,7 +34,7 @@ print("Total validation images:", total_val)
 
 
 batch_size = 40
-epochs = 6
+epochs = 15
 IMG_HEIGHT = 150
 IMG_WIDTH = 150
 
@@ -81,7 +81,7 @@ hist = model.fit(
     steps_per_epoch=batch_size,
     epochs=epochs,
     validation_data=val_data_gen,
-    validation_steps=batch_size
+    validation_steps=batch_size,
 )
 
 acc = hist.history['accuracy']
