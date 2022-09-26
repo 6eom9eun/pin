@@ -33,7 +33,7 @@ print("Total training images:", total_train)
 print("Total validation images:", total_val)
 
 
-batch_size = 20
+batch_size = 40
 epochs = 6
 IMG_HEIGHT = 150
 IMG_WIDTH = 150
@@ -78,10 +78,10 @@ model.summary()
 
 hist = model.fit(
     train_data_gen,
-    steps_per_epoch=len(train_dir),
+    steps_per_epoch=batch_size,
     epochs=epochs,
     validation_data=val_data_gen,
-    validation_steps=len(validation_dir)
+    validation_steps=batch_size
 )
 
 acc = hist.history['accuracy']
